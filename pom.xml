@@ -37,7 +37,7 @@
 	<configuration>
           <archive>
             <manifest>
-              <mainClass>net.parasec.nn.Trainer</mainClass>
+              <mainClass>net.parasec.nn.Train</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
