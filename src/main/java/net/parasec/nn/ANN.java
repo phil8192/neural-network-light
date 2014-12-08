@@ -1,4 +1,4 @@
-package net.parassec.nn;
+package net.parasec.nn;
 
 import java.util.Random;
 
@@ -14,7 +14,7 @@ public final class ANN {
   // network weight matrix:
   // [layer][neuron][weight]
   // where each layer contains neurons with incomming weights.
-  private final double[][][] weights; 
+  private double[][][] weights; 
 
   // neuron outputs. output of each neuron after presenting a single instance.
   private final double[][] outputs;
@@ -24,7 +24,7 @@ public final class ANN {
 
   // previous weight change.
   // needed for momentum calculation.
-  private final double[][][] preDW;
+  private double[][][] preDW;
 
   // network structure
   private final int[] structure;
@@ -104,6 +104,24 @@ public final class ANN {
 
   public double[][][] getWeights() {
     return weights;
+  }
+
+  public double[][][] cloneWeights() {
+    final double[][][] networkWeights = new double[nLayers][][];
+    for(int i = nLayers; --i>= 0; )
+      networkWeights[i] = new double[structure[i+1]][structure[i]+1];
+      for(int i = networkWeights.length; --i>= 0; )
+        for(int j = networkWeights[i].length; --j>= 0; )
+          for(int k = networkWeights[i][j].length; --k >= 0; )
+            networkWeights[i][j][k] = weights[i][j][k];
+    return networkWeights;
+  }
+
+  public void initialiseWeights(final double[][][] weights) {
+    this.weights = weights;
+    preDW = new double[nLayers][][];
+    for(int i = nLayers; --i >= 0; )
+      preDW[i] = new double[structure[i+1]][structure[i]+1];    
   }
 
   private void calculateError(final double[] desiredOutput) {
