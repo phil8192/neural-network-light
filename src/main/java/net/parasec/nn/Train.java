@@ -7,6 +7,7 @@ import java.util.Random;
  * initialise and train a neural network.
  */
 public final class Train {
+  private final static Logger LOG = Logger.getLogger(Train.class);
 
   public static void main(String[] args) {
 
@@ -22,6 +23,9 @@ public final class Train {
     final double learningRate = Double.parseDouble(args[6]);
     final double momentum = Double.parseDouble(args[7]);
     final int maxEpochs = Integer.parseInt(args[8]);
+
+    // post processing
+    final String modelOutput = args[9];
 
     // prng used throughout training
     final Random prng = new Random();
@@ -43,12 +47,12 @@ public final class Train {
     // remaining args are the number of hidden nodes in each layer of the
     // network.
     final int inputNodes = tiList.get(0).getInputVector().length;
-    final int hiddenLayers = args.length-9;
+    final int hiddenLayers = args.length-10;
     final int outputNodes = outputLength;
     final int[] structure = new int[2+hiddenLayers]; 
     structure[0] = inputNodes;
-    for(int i = 9, len = args.length; i < len; i++)
-      structure[i-8] = Integer.parseInt(args[i]);
+    for(int i = 10, len = args.length; i < len; i++)
+      structure[i-9] = Integer.parseInt(args[i]);
     structure[structure.length-1] = outputNodes;
 
     // train the network.
@@ -58,6 +62,7 @@ public final class Train {
           = new ANN(minRandomWeight, maxRandomWeight, structure, prng);
       final TrainingReport report = Trainer.train(ann, data, maxEpochs, 
           learningRate, momentum);
+      LOG.info("training complete. " + report);
     } else {
       // use the k-fold-trainer.
       final KFoldTrainer kft = new KFoldTrainer(prng, minRandomWeight, 

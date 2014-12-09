@@ -54,11 +54,11 @@ public final class Trainer {
           lowestError = testingMse;
           bestNetwork = ann.cloneWeights();
         }
-        LOG.info("training mse at epoch " + i + " = " + String.format("%.5f",
+        LOG.debug("training mse at epoch " + i + " = " + String.format("%.5f",
           trainingMSE) + " testing = " + String.format( "%.5f", testingMse) +   
           " best = " + String.format("%.5f", lowestError));
       }
-      LOG.info("training mse at epoch " + i + " = " + String.format("%.5f", 
+      LOG.debug("training mse at epoch " + i + " = " + String.format("%.5f", 
           trainingMSE));
     } // end epochs.
     if(data.testSize() > 0 && bestNetwork != null) {

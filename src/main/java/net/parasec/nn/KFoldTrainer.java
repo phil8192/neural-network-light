@@ -147,7 +147,9 @@ public final class KFoldTrainer {
     LOG.info("training average best = " + averageBest);
     final ANN ann 
         = new ANN(minRandomWeight, maxRandomWeight, structure, random);
-    Trainer.train(ann, data, maxEpochs, learningRate, momentum);
+    final TrainingReport report 
+        = Trainer.train(ann, data, averageBest, learningRate, momentum);
+    LOG.info("training complete. " + report);
     return ann;
   }
 }
