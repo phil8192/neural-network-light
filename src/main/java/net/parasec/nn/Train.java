@@ -60,9 +60,11 @@ public final class Train {
     if(k <= 1) {
       final ANN ann 
           = new ANN(minRandomWeight, maxRandomWeight, structure, prng);
+      final long l = System.currentTimeMillis();      
       final TrainingReport report = Trainer.train(ann, data, maxEpochs, 
           learningRate, momentum);
       LOG.info("training complete. " + report);
+      LOG.info("training took " + (System.currentTimeMillis()-l) + "ms.");
     } else {
       // use the k-fold-trainer.
       final KFoldTrainer kft = new KFoldTrainer(prng, minRandomWeight, 

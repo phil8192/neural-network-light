@@ -31,10 +31,6 @@ public final class Trainer {
         final double[] inputVector = trainingInstance.getInputVector();
         final double[] outputVector = trainingInstance.getOutputVector();
         final double[] networkOutput = ann.feedForward(inputVector);
-        LOG.debug("epoch " + i + " in = " +
-            Util.vectorToString(inputVector) + " desired out = " +
-            Util.vectorToString(outputVector) + " network out = " +
-            Util.vectorToString(networkOutput));
         ann.backPropagateError(outputVector, learningRate, momentum);
         trainingSum += networkError(networkOutput, outputVector);
       }

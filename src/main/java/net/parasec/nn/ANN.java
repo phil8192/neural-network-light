@@ -128,6 +128,7 @@ public final class ANN {
       preDW[i] = new double[structure[i+1]][structure[i]+1];    
   }
 
+  // 2nd hotspot.
   private void calculateError(final double[] desiredOutput) {
     // output layer
     for(int i = nOutputs; --i >=0; ) {
@@ -147,8 +148,27 @@ public final class ANN {
     }
   }
 
+  //
+  //
+  // note: sigmoid(double) self time = 42.61%.
+  // sigmoid calculation is the main hotspot; this is due to the expensive
+  // exp function. perhaps the accuracy is not necessary. take a look at
+  // http://code.google.com/p/fastapprox/ (approximate and vectorised versions 
+  // of functions commonly used in machine learning).
+  // 
+  // this, from: seems good.
+  // martin.ankerl.com/2007/02/11/optimized-exponential-functions-for-java/
+  //
+  //
+  private double fastExp1(final double x) {
+    final long tmp = (long) (1512775 * x + 1072632447);
+    return Double.longBitsToDouble(tmp << 32);
+  }
+
+  // 1st hotspot. see note^.
   private double sigmoid(final double x) {
-    return 1/(1+Math.exp(-x));
+    //return 1/(1+Math.exp(-x));
+    return 1/(1+fastExp1(-x));
   }
 
   private double sigmoidDerivative(final double sOutput) {
