@@ -1,13 +1,12 @@
 package net.parasec.nn;
 
-import org.apache.log4j.Logger;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * train network with k-fold cross validation.
@@ -18,6 +17,10 @@ import java.util.Random;
 public final class KFoldTrainer {
   private static final Logger LOG = Logger.getLogger(KFoldTrainer.class);
 
+  /**
+   * internal: this just encapsulates a training-task: training over a training
+   * set + evaluation over a test set.
+   */ 
   private final class TrainingTask {
     private final Data data;
     private final int resultIndex;       
@@ -42,14 +45,18 @@ public final class KFoldTrainer {
   private final int maxEpochs;
   private final Random random;
 
+  private final int k;
+
+
   public KFoldTrainer(final Random random, final double minRandomWeight, 
       final double maxRandomWeight, final int[] structure, 
-      final int maxEpochs) {
+      final int maxEpochs, final int k) {
     this.random = random;
     this.minRandomWeight = minRandomWeight;
     this.maxRandomWeight = maxRandomWeight;
     this.structure = structure;
     this.maxEpochs = maxEpochs;
+    this.k = k;
   }
 
   /**
@@ -65,7 +72,8 @@ public final class KFoldTrainer {
    */
   public ANN train(final Data data, final double learningRate, 
       final double momentum) {
-    final int numberOfPartitions = (int) Math.round(data.trainingSize()/70);
+    //final int numberOfPartitions = (int) Math.round(data.trainingSize()/70);
+    final int numberOfPartitions = k;
     final List<List<TrainingInstance>> partitions 
         = data.partition(numberOfPartitions);
     LOG.info("training. " + data.trainingSize() + " / number of partitions = " + 
@@ -89,8 +97,9 @@ public final class KFoldTrainer {
     // training task results
     final int[] total = new int[dataPartitions.size()];
     // 8 threads.
+    final Stack<Thread> threads = new Stack<Thread>();
     for(int k = 0; k < 8; k++) {
-      Executors.defaultThreadFactory().newThread(new Runnable() {
+      final Thread t = Executors.defaultThreadFactory().newThread(new Runnable() {
         public final void run() {
           try {
             for(;;) {
@@ -110,7 +119,9 @@ public final class KFoldTrainer {
             Thread.currentThread().interrupt();
           }
         }
-      }).start();
+      });
+      threads.push(t);
+      t.start();
     }
     // put training tasks on queue
     i = 0;
@@ -118,7 +129,12 @@ public final class KFoldTrainer {
       queue.offer(new TrainingTask(d, i++));
     // wait for tasks to be complete
     try {
+      LOG.info("waiting for k-fold tasks to complete");
       signal.await();
+      LOG.info("k-fold tasks complete");
+      // kill'em
+      while(!threads.isEmpty())
+        threads.pop().interrupt();
     } catch(final InterruptedException ie) {
       Thread.currentThread().interrupt();
     }

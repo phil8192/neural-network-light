@@ -10,6 +10,8 @@ import java.util.Random;
  * poor.
  */
 public final class ANN {
+  private final static Logger LOG = Logger.getLogger(ANN.class);
+
 
   // network weight matrix:
   // [layer][neuron][weight]
@@ -42,6 +44,8 @@ public final class ANN {
     nOutputs = structure[structure.length-1];
     nInputs = structure[0];
     outputs = new double[structure.length][];
+    LOG.info("initialising network with structure: " + 
+        java.util.Arrays.toString(structure));
     for(int i = outputs.length; --i >= 0; )
       outputs[i] = new double[structure[i]];
     deltas = new double[structure.length-1][];

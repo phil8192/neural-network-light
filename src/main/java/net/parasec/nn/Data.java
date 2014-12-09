@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
-
-
+/**
+ * represents the data/subsets used in supervised learning.
+ */ 
 public final class Data {
   private static final Logger LOG = Logger.getLogger(Data.class);  
 
@@ -20,14 +20,29 @@ public final class Data {
     this.random = random;
   }
 
+  /**
+   * training data subset.
+   */ 
   public List<TrainingInstance> getTrainingData() {
     return trainingData;
   }
 
+  /**
+   * testing data subset.
+   */ 
   public List<TrainingInstance> getTestData() {
     return testData;
   }
 
+  /**
+   * given a list of partition lists, create a data object for each partition,
+   * where the test-set is the list of training instances and the training set
+   * is the list of all other training instances:
+   * [a,b,c,d,e,f] test sets: [a,b] [c,d] [e,f],
+   * partitions: 1: training [c,d,e,f] testing: [a,b]
+   *             2: training [a,b,e,f] testing: [c,d]
+   *             3: training [a,b,c,d] testing: [e,f] 
+   */ 
   public List<Data> dataPartitions(final List<List<TrainingInstance>> 
       partitions) {
     final List<Data> data = new ArrayList<Data>();
@@ -35,7 +50,7 @@ public final class Data {
       final Data d = new Data(random);
       final List<TrainingInstance> training = d.getTrainingData();
       final List<TrainingInstance> testing = d.getTestData();
-      testing.addAll( partition );
+      testing.addAll(partition);
       for(final List<TrainingInstance> otherPartition : partitions)
         if(!partition.equals(otherPartition)) 
           training.addAll(otherPartition);
@@ -44,6 +59,10 @@ public final class Data {
     return data;
   }
 
+  /**
+   * shuffle, and return a list of n partitions.
+   * each partition size is #training_size/#partitions.
+   */ 
   public List<List<TrainingInstance>> partition(final int partitions) {
     final List<List<TrainingInstance>> ret 
         = new ArrayList<List<TrainingInstance>>();
@@ -51,7 +70,7 @@ public final class Data {
         = (int) Math.round(trainingData.size()/(double) partitions);
     final List<TrainingInstance> copy 
         = new ArrayList<TrainingInstance>(trainingData);
-    Collections.shuffle( copy, random );
+    Collections.shuffle(copy, random);
     int k = 0;	
     for(int i = 0; i < partitions-1; i++) {
       final List<TrainingInstance> partition 
@@ -67,15 +86,24 @@ public final class Data {
     return ret;
   }
 
-  // > ratio = test data. 0.2 = 20% test data.
+  /**
+   * split data into training and test subsets. 
+   * &gt; ratio = test data. 0.2 = 20% test data.
+   * initially all data is training data.
+   */
   public void split(final double ratio) {
     randomise();
     final int tdSize = trainingData.size();
+    LOG.info("splitting data into training/testing subsets");
     for(int i = (int) Math.round((ratio * (double) tdSize)); --i >= 0; )
       testData.add(trainingData.remove(trainingData.size()-1));
   }
 
+  /**
+   * randomise the order of training data.
+   */ 
   public void randomise() {
+    LOG.debug("randomising training data");
     Collections.shuffle(trainingData, random);
   }
 

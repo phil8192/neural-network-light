@@ -1,8 +1,5 @@
 package net.parasec.nn;
 
-import org.apache.log4j.Logger;
-
-
 /**
  * train the network.
  */
@@ -31,9 +28,13 @@ public final class Trainer {
       data.randomise();
       double trainingSum = 0;
       for(final TrainingInstance trainingInstance : data.getTrainingData()) {
+        final double[] inputVector = trainingInstance.getInputVector();
         final double[] outputVector = trainingInstance.getOutputVector();
-        final double[] networkOutput 
-            = ann.feedForward(trainingInstance.getInputVector());
+        final double[] networkOutput = ann.feedForward(inputVector);
+        LOG.debug("epoch " + i + " in = " +
+            Util.vectorToString(inputVector) + " desired out = " +
+            Util.vectorToString(outputVector) + " network out = " +
+            Util.vectorToString(networkOutput));
         ann.backPropagateError(outputVector, learningRate, momentum);
         trainingSum += networkError(networkOutput, outputVector);
       }
@@ -53,10 +54,12 @@ public final class Trainer {
           lowestError = testingMse;
           bestNetwork = ann.cloneWeights();
         }
+        LOG.info("training mse at epoch " + i + " = " + String.format("%.5f",
+          trainingMSE) + " testing = " + String.format( "%.5f", testingMse) +   
+          " best = " + String.format("%.5f", lowestError));
       }
       LOG.info("training mse at epoch " + i + " = " + String.format("%.5f", 
-          trainingMSE) + "\t\ttesting = " + String.format( "%.5f", testingMse) + 
-          " best = " + String.format("%.5f", lowestError));
+          trainingMSE));
     } // end epochs.
     if(data.testSize() > 0 && bestNetwork != null) {
       ann.initialiseWeights(bestNetwork);

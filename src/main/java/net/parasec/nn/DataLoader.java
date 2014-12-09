@@ -1,13 +1,10 @@
 package net.parasec.nn;
 
-import org.apache.log4j.Logger;
-
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.LinkedList;
-
 
 public final class DataLoader {
   private static final Logger LOG = Logger.getLogger(DataLoader.class);
@@ -55,8 +52,9 @@ public final class DataLoader {
     final double[] output = new double[outputLength];
     for(int i = 0, len = input.length; i < len; i++)
       input[i] = Double.parseDouble(line[i]);
-    for(int i = 0, len = output.length; i < len; i++)
-      output[i] = Double.parseDouble(line[i]);
+    final int offset = input.length;
+    for(int i = offset, len = line.length; i < len; i++)
+      output[i-offset] = Double.parseDouble(line[i]);
     return new TrainingInstance(input, output); 
   }
 }

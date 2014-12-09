@@ -1,5 +1,8 @@
 package net.parasec.nn;
 
+/**
+ * supervised learning: training instance.
+ */
 public final class TrainingInstance {
   private final double[] inputVector;
   private final double[] outputVector;
