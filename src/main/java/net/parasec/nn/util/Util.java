@@ -1,4 +1,4 @@
-package net.parasec.nn;
+package net.parasec.nn.util;
 
 public final class Util {
 

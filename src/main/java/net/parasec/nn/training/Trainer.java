@@ -1,4 +1,7 @@
-package net.parasec.nn;
+package net.parasec.nn.training;
+
+import net.parasec.nn.logging.Logger;
+import net.parasec.nn.network.ANN;
 
 /**
  * train the network.

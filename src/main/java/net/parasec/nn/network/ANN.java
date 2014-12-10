@@ -1,4 +1,7 @@
-package net.parasec.nn;
+package net.parasec.nn.network;
+
+import net.parasec.nn.logging.Logger;
+import net.parasec.nn.util.MathUtil;
 
 import java.util.Random;
 

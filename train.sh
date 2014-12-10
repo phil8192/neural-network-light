@@ -55,5 +55,5 @@ fi
 
 args=$(echo $@ |sed 's/--[a-z_]\+=//g; s/,/ /g')
 
-java -cp target/nn-light.jar net.parasec.nn.Train $args
+java -cp target/nn-light.jar net.parasec.nn.training.Train $args
 

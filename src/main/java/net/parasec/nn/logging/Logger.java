@@ -1,4 +1,4 @@
-package net.parasec.nn;
+package net.parasec.nn.logging;
 
 /**
  * basic logging.

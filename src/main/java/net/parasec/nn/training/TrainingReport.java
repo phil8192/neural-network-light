@@ -1,4 +1,4 @@
-package net.parasec.nn;
+package net.parasec.nn.training;
 
 public final class TrainingReport {
   private final int bestEpoch;

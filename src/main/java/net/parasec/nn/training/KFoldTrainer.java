@@ -1,4 +1,7 @@
-package net.parasec.nn;
+package net.parasec.nn.training;
+
+import net.parasec.nn.logging.Logger;
+import net.parasec.nn.network.ANN;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.CountDownLatch;

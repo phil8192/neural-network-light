@@ -1,4 +1,6 @@
-package net.parasec.nn;
+package net.parasec.nn.training;
+
+import net.parasec.nn.logging.Logger;
 
 import java.io.FileReader;
 import java.io.BufferedReader;
