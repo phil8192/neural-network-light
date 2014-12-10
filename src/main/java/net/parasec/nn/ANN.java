@@ -57,7 +57,7 @@ public final class ANN {
     for(int i = weights.length; --i >= 0; )
       for(int j = weights[i].length; --j >= 0; )
         for(int k = weights[i][j].length; --k >= 0; )
-          weights[i][j][k] = getRandomWeight(min, max);
+          weights[i][j][k] = MathUtil.getRandom(prng, min, max);
     preDW = new double[nLayers][][];
     for(int i = nLayers; --i >= 0; )
       preDW[i] = new double[structure[i+1]][structure[i]+1];
@@ -77,7 +77,7 @@ public final class ANN {
         for(int k = 1; k < weights[i-1][j].length; k++) {
           sum += weights[i-1][j][k]*outputs[i-1][k-1];
         }
-        outputs[i][j] = sigmoid(sum);
+        outputs[i][j] = MathUtil.fastSigmoid(sum);
       }
     }
     return outputs[nLayers];
@@ -132,7 +132,7 @@ public final class ANN {
   private void calculateError(final double[] desiredOutput) {
     // output layer
     for(int i = nOutputs; --i >=0; ) {
-      final double sd = sigmoidDerivative(outputs[nLayers][i]);
+      final double sd = MathUtil.sigmoidDerivative(outputs[nLayers][i]);
       deltas[nLayers-1][i] = sd*(desiredOutput[i]-outputs[nLayers][i]);
     }
     // for each hidden layer
@@ -143,49 +143,9 @@ public final class ANN {
         // outgoingWeight*delta(layer +1)
         for(int k = deltas[i+1].length; --k >= 0; )
           sum += weights[i+1][k][j+1]*deltas[i+1][k];
-        deltas[i][j] = sigmoidDerivative(outputs[i+1][j]) * sum;
+        deltas[i][j] = MathUtil.sigmoidDerivative(outputs[i+1][j]) * sum;
       }
     }
   }
-
-  //
-  //
-  // note: sigmoid(double) self time = 42.61%.
-  // sigmoid calculation is the main hotspot; this is due to the expensive
-  // exp function. perhaps the accuracy is not necessary. take a look at
-  // http://code.google.com/p/fastapprox/ (approximate and vectorised versions 
-  // of functions commonly used in machine learning).
-  // 
-  // this, from: seems good.
-  // martin.ankerl.com/2007/02/11/optimized-exponential-functions-for-java/
-  //
-  //
-  private double fastExp1(final double x) {
-    final long tmp = (long) (1512775 * x + 1072632447);
-    return Double.longBitsToDouble(tmp << 32);
-  }
-
-  // 1st hotspot. see note^.
-  private double sigmoid(final double x) {
-    //return 1/(1+Math.exp(-x));
-    return 1/(1+fastExp1(-x));
-  }
-
-  private double sigmoidDerivative(final double sOutput) {
-    return sOutput*(1-sOutput);
-  }
-
-  private double tanh(final double x) {
-    return Math.tanh(x);
-  }
-
-  private double tanhDerivative(final double thOutput) {
-    return 1-(thOutput*thOutput);
-  }
-
-  private double getRandomWeight(final double min, final double max) {
-    return prng.nextDouble()*(max-min)+min;
-  }
-
 }
 
