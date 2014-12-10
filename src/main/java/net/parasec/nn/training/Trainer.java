@@ -28,10 +28,14 @@ public final class Trainer {
     final double[] trainingError = new double[epochs];
     final double[] testingError = new double[epochs];
 
+    // good practice to randomise the training data. -- neural network should 
+    // generalise, not remember.
+    // note that this step was performed before each epoch. moved it here since
+    // it is probably ok to do this step once. otherwise the training mse 
+    // oscillates quite wildly which is amplified in the test subset. 
+    data.randomise();
+
     for(int i = 0; i < epochs; i++) {
-      // good practice to randomise the training data before each epoch
-      // -- neural network should generalise, not remember.
-      data.randomise();
       double trainingSum = 0;
       for(final TrainingInstance trainingInstance : data.getTrainingData()) {
         final double[] inputVector = trainingInstance.getInputVector();
