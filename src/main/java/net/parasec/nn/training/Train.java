@@ -1,6 +1,7 @@
 package net.parasec.nn.training;
 
 import net.parasec.nn.logging.Logger;
+import net.parasec.nn.logging.Report;
 import net.parasec.nn.network.ANN;
 
 import java.util.List;
@@ -68,6 +69,7 @@ public final class Train {
           learningRate, momentum);
       LOG.info("training complete. " + report);
       LOG.info("training took " + (System.currentTimeMillis()-l) + "ms.");
+      Report.dump(report, modelOutput);
     } else {
       // use the k-fold-trainer.
       final KFoldTrainer kft = new KFoldTrainer(prng, minRandomWeight, 

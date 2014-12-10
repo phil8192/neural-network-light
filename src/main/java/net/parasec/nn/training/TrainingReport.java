@@ -8,20 +8,34 @@ public final class TrainingReport {
   private final double testingMinError;
   private final double testingMaxError;
 
+  private final double[] trainingError;
+  private final double[] testingError;
+
 
   public TrainingReport(final int bestEpoch, final double trainingMSE, 
       final double testingMSE, final double testingAverageError, 
-      final double testingMinError, final double testingMaxError) {
+      final double testingMinError, final double testingMaxError,
+      final double[] trainingError, final double[] testingError) {
     this.bestEpoch = bestEpoch;
     this.trainingMSE = trainingMSE;
     this.testingMSE = testingMSE;
     this.testingAverageError = testingAverageError;
     this.testingMinError = testingMinError;
     this.testingMaxError = testingMaxError;
+    this.trainingError = trainingError;
+    this.testingError = testingError;
   }
 
   public int getBestEpoch() {
     return bestEpoch;
+  }
+
+  public double[] getTrainingError() {
+    return trainingError;
+  }
+
+  public double[] getTestingError() {
+    return testingError;
   }
 
   public String toString() {
@@ -32,6 +46,5 @@ public final class TrainingReport {
         String.format("%.2f", testingMinError) + " max = " + 
         String.format("%.2f", testingMaxError);
   }
-
 }
 

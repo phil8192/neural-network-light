@@ -4,7 +4,7 @@
 # Example:
 # ./train.sh --file=test-data/iris.csv --output_nodes=3 --holdback=0.2 --k=0 \
 #            --min_weight=-0.5 --max_weight=0.5 --learning_rate=0.1 \ 
-#            --momentum=0.25 --epochs=1000 --model_output=/tmp/dump.bin \
+#            --momentum=0.25 --epochs=1000 --model_output=/tmp \
 #            --hidden_nodes=3,2
 #
 # Will train a neural network on the test iris data. 20% of the data will be
@@ -43,7 +43,7 @@ usage() {
     --learning_rate=<r>         learning rate
     --momentum=<r>              momentum term
     --epochs=<n>                number of training epochs
-    --model_output=<file.bin>   save network learned weights/model to file.bin
+    --model_output=<dir>        save learned weights + reports to dir 
     --hidden_nodes=<n1,n2..,N>  number of _hidden_ nodes in each layer n
 EOF
 }

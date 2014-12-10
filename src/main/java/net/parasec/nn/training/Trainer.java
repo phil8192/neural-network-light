@@ -25,6 +25,9 @@ public final class Trainer {
     double lowestError = Double.MAX_VALUE;
     double[][][] bestNetwork = null;
 
+    final double[] trainingError = new double[epochs];
+    final double[] testingError = new double[epochs];
+
     for(int i = 0; i < epochs; i++) {
       // good practice to randomise the training data before each epoch
       // -- neural network should generalise, not remember.
@@ -38,6 +41,7 @@ public final class Trainer {
         trainingSum += networkError(networkOutput, outputVector);
       }
       trainingMSE = Math.sqrt(trainingSum/datasetLen);
+      trainingError[i] = trainingMSE;
       double testingMse = Double.MAX_VALUE;
       if(data.testSize() > 0) {
         trainingSum = 0;
@@ -53,12 +57,8 @@ public final class Trainer {
           lowestError = testingMse;
           bestNetwork = ann.cloneWeights();
         }
-        LOG.debug("training mse at epoch " + i + " = " + String.format("%.5f",
-          trainingMSE) + " testing = " + String.format( "%.5f", testingMse) +   
-          " best = " + String.format("%.5f", lowestError));
+        testingError[i] = testingMse;
       }
-      LOG.debug("training mse at epoch " + i + " = " + String.format("%.5f", 
-          trainingMSE));
     } // end epochs.
     if(data.testSize() > 0 && bestNetwork != null) {
       ann.initialiseWeights(bestNetwork);
@@ -90,7 +90,8 @@ public final class Trainer {
       bestEpoch = epochs;
     }
     return new TrainingReport(bestEpoch, trainingMSE, testingMSE, 
-        testingAverageError, testingMinError, testingMaxError);
+        testingAverageError, testingMinError, testingMaxError, trainingError,
+        testingError);
   }
 
   /**
