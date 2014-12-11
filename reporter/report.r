@@ -18,7 +18,7 @@ plot.errors <- function(errors) {
 }
 
 # plot to errors.png
-errors <- load.data("/tmp/errors.csv")
+errors <- load.data("reporter/model/errors.csv")
 png("reporter/model/errors.png")
 plot.errors(errors)
 dev.off()
