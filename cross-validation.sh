@@ -14,5 +14,5 @@
 # plot an ascii graph of the training and testing mean squared error for each
 # epoch. (1 epoch = backpropogation on all training examples).
 R --vanilla < reporter/report.r >/dev/null
-echo "graph in reporter/error.png"
+echo "graph in reporter/model/error.png"
 
