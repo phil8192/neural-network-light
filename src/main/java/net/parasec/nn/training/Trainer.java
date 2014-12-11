@@ -15,8 +15,6 @@ public final class Trainer {
   public static TrainingReport train(final ANN ann, final Data data, 
       final int epochs, final double learningRate, final double momentum) {
     int bestEpoch = 0;
-    double trainingMSE = 0;
-    double testingMSE = 0;
     double testingAverageError = 0;
     double testingMinError = 0;
     double testingMaxError = 0;
@@ -36,6 +34,7 @@ public final class Trainer {
     data.randomise();
 
     for(int i = 0; i < epochs; i++) {
+      //data.randomise();
       double trainingSum = 0;
       for(final TrainingInstance trainingInstance : data.getTrainingData()) {
         final double[] inputVector = trainingInstance.getInputVector();
@@ -44,18 +43,17 @@ public final class Trainer {
         ann.backPropagateError(outputVector, learningRate, momentum);
         trainingSum += networkError(networkOutput, outputVector);
       }
-      trainingMSE = Math.sqrt(trainingSum/datasetLen);
-      trainingError[i] = trainingMSE;
-      double testingMse = Double.MAX_VALUE;
+      final double trainingMse = Math.sqrt(trainingSum/datasetLen);
+      trainingError[i] = trainingMse;
       if(data.testSize() > 0) {
-        trainingSum = 0;
+        double testingSum = 0;
         for(final TrainingInstance testingInstance: data.getTestData()) {
           final double[] networkOutput 
               = ann.feedForward(testingInstance.getInputVector());
-          trainingSum 
+          testingSum 
               += networkError(networkOutput, testingInstance.getOutputVector());
         }
-        testingMse = Math.sqrt(trainingSum/data.testSize());
+        final double testingMse = Math.sqrt(trainingSum/data.testSize());
         if(testingMse < lowestError) {
           bestEpoch = i+1;
           lowestError = testingMse;
@@ -66,7 +64,6 @@ public final class Trainer {
     } // end epochs.
     if(data.testSize() > 0 && bestNetwork != null) {
       ann.initialiseWeights(bestNetwork);
-      testingMSE = lowestError;
       double sum = 0;
       double min = 1;
       double max = 0;
@@ -93,9 +90,9 @@ public final class Trainer {
     } else {
       bestEpoch = epochs;
     }
-    return new TrainingReport(bestEpoch, trainingMSE, testingMSE, 
-        testingAverageError, testingMinError, testingMaxError, trainingError,
-        testingError);
+    return new TrainingReport(bestEpoch, trainingError[trainingError.length-1], 
+        lowestError, testingAverageError, testingMinError, testingMaxError, 
+        trainingError, testingError);
   }
 
   /**
@@ -104,8 +101,10 @@ public final class Trainer {
   private static double networkError(final double[] output, 
       final double[] desiredOutput) {
     double sum = 0;
-    for(int i = output.length; --i>= 0; )
-      sum += Math.pow(desiredOutput[i]-output[i], 2);
+    for(int i = 0, len = output.length; i < len; i++) {
+      final double diff = desiredOutput[i]-output[i];
+      sum += diff*diff;
+    } 
     return sum;
   }
 
