@@ -98,11 +98,15 @@ public final class ANN {
             = (learningRate*deltas[i][j])+(momentum*preDW[i][j][0]);
         weights[i][j][0] += dwBias;
         preDW[i][j][0] = dwBias;
+        //LOG.info("w[" + i + "][" + j + "][0] = " + String.format("%.10f", weights[i][j][0]) + 
+        //         " dw = " + String.format("%.10f", dwBias));
         // for each weight connected to this neuron
         for(int k = weights[i][j].length; --k > 0; ) {
           final double dw = (learningRate*(deltas[i][j]*outputs[i][k-1]))
               + (momentum*preDW[i][j][k]);
           weights[i][j][k] += dw;
+          //LOG.info("w[" + i + "][" + j + "][" + k + "] = " + String.format("%.10f", weights[i][j][k]) +
+          //         " dw = " + String.format("%.10f", dw));
           preDW[i][j][k] = dw;
         }
       }

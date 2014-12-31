@@ -2,6 +2,7 @@ package net.parasec.nn.training;
 
 import net.parasec.nn.logging.Logger;
 import net.parasec.nn.network.ANN;
+import net.parasec.nn.util.MathUtil;
 
 /**
  * train the network.
@@ -40,11 +41,19 @@ public final class Trainer {
         final double[] inputVector = trainingInstance.getInputVector();
         final double[] outputVector = trainingInstance.getOutputVector();
         final double[] networkOutput = ann.feedForward(inputVector);
+/*
+        LOG.info("epoch = " + i + 
+                 " in = " + java.util.Arrays.toString(inputVector) +
+                 " out = " + java.util.Arrays.toString(networkOutput) +
+                 " des = " + java.util.Arrays.toString(outputVector));
+*/
         ann.backPropagateError(outputVector, learningRate, momentum);
         trainingSum += networkError(networkOutput, outputVector);
       }
-      final double trainingMse = Math.sqrt(trainingSum/datasetLen);
+      //final double trainingMse = Math.sqrt(trainingSum/datasetLen);
+      final double trainingMse = MathUtil.fastSqrt(trainingSum/datasetLen);
       trainingError[i] = trainingMse;
+      LOG.info("epoch = " + i + " mse = " + String.format("%.10f", trainingMse));
       if(data.testSize() > 0) {
         double testingSum = 0;
         for(final TrainingInstance testingInstance: data.getTestData()) {
@@ -53,7 +62,8 @@ public final class Trainer {
           testingSum 
               += networkError(networkOutput, testingInstance.getOutputVector());
         }
-        final double testingMse = Math.sqrt(trainingSum/data.testSize());
+        //final double testingMse = Math.sqrt(trainingSum/data.testSize());
+        final double testingMse = MathUtil.fastSqrt(trainingSum/data.testSize());
         if(testingMse < lowestError) {
           bestEpoch = i+1;
           lowestError = testingMse;

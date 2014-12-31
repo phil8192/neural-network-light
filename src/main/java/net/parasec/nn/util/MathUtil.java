@@ -27,6 +27,10 @@ public final class MathUtil {
     return x;
   }
 
+  public static double fastSqrt(final double x) {
+    return x*invSqrt(x);
+  }
+
   //
   // note: sigmoid(double) self time = 42.61%.
   // sigmoid calculation is the main hotspot; this is due to the expensive

@@ -23,7 +23,7 @@ public final class Logger {
   }
 
   public void debug(final Object o) {
-//    info(o); 
+    info(o); 
   }
   
   public static Logger getLogger(final Class c) {

@@ -42,9 +42,12 @@ public final class Train {
     // dataset will be split into a training and test validation subset.
     // the test validation subset size is holdbackRatio*total_data_size.
     final Data data = new Data(prng);
+
     data.getTrainingData().addAll(tiList);
     if(holdbackRatio > 0)
       data.split(holdbackRatio);
+
+    //data.print();
 
     // network hidden layer structure args.
     // (number of input and output nodes determined from dataset outputLength).
@@ -58,6 +61,11 @@ public final class Train {
     for(int i = 10, len = args.length; i < len; i++)
       structure[i-9] = Integer.parseInt(args[i]);
     structure[structure.length-1] = outputNodes;
+
+    LOG.info("min_rw = " + minRandomWeight +
+             " max_rw = " + maxRandomWeight +
+             " lr = " + learningRate +
+             " mo = " + momentum);       
 
     // train the network.
     // if no k-folding, train as normal
