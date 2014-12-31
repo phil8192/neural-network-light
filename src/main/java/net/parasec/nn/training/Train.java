@@ -3,6 +3,7 @@ package net.parasec.nn.training;
 import net.parasec.nn.logging.Logger;
 import net.parasec.nn.logging.Report;
 import net.parasec.nn.network.ANN;
+import net.parasec.nn.util.IO;
 
 import java.util.List;
 import java.util.Random;
@@ -69,9 +70,9 @@ public final class Train {
 
     // train the network.
     // if no k-folding, train as normal
+    ANN ann;
     if(k <= 1) {
-      final ANN ann 
-          = new ANN(minRandomWeight, maxRandomWeight, structure, prng);
+      ann = new ANN(minRandomWeight, maxRandomWeight, structure, prng);
       final long l = System.currentTimeMillis();      
       final TrainingReport report = Trainer.train(ann, data, maxEpochs, 
           learningRate, momentum);
@@ -82,8 +83,9 @@ public final class Train {
       // use the k-fold-trainer.
       final KFoldTrainer kft = new KFoldTrainer(prng, minRandomWeight, 
           maxRandomWeight, structure, maxEpochs, k);
-      final ANN ann = kft.train(data, learningRate, momentum);
-    }  
+      ann = kft.train(data, learningRate, momentum);
+    }
+    IO.dumpWeights(ann.getWeights(), modelOutput + "/weights.bin");  
   }
 }
 
