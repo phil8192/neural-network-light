@@ -54,18 +54,39 @@ public final class ANN {
     deltas = new double[structure.length-1][];
     for(int i = deltas.length; --i >= 0; )
       deltas[i] = new double[structure[i+1]];
-    weights = new double[nLayers][][];
+    final double[][][] weights = new double[nLayers][][];
     for(int i = nLayers; --i >= 0; )
       weights[i] = new double[structure[i+1]][structure[i]+1];
     for(int i = weights.length; --i >= 0; )
       for(int j = weights[i].length; --j >= 0; )
         for(int k = weights[i][j].length; --k >= 0; )
           weights[i][j][k] = MathUtil.getRandom(prng, min, max);
-    preDW = new double[nLayers][][];
-    for(int i = nLayers; --i >= 0; )
-      preDW[i] = new double[structure[i+1]][structure[i]+1];
+    initialiseWeights(weights);
   }
- 
+
+  public ANN(final double[][][] weights) {
+    this.prng = new Random(); 
+    nLayers = weights.length; // -input layer
+    nOutputs = weights[nLayers-1].length; 
+    // # incomming weights to first neuron in first layer -bias
+    nInputs = weights[0][0].length-1;
+    outputs = new double[nLayers+1][];
+    structure = new int[nLayers+1];
+    structure[0] = nInputs;
+    outputs[0] = new double[nInputs];
+    for(int i = 1, len = outputs.length; i < len; i++) {
+      final int neurons = weights[i-1].length;
+      structure[i] = neurons;
+      outputs[i] = new double[neurons];
+    }
+    deltas = new double[structure.length-1][];
+    for(int i = 0, len = deltas.length; i < len; i++) 
+      deltas[i] = new double[structure[i+1]];
+    LOG.info("initialising network with structure: " +
+        java.util.Arrays.toString(structure));
+    initialiseWeights(weights);
+  }
+
   public double[] feedForward(final double[] instance) {
     // initialise 1st outputs to be inputs,
     // since input neurons have no activation function
