@@ -18,6 +18,12 @@ public final class IO {
 
   public static void dumpWeights(final double[][][] weights, 
       final String filename) {
+/*
+for(int i = 0; i < weights.length; i++)
+  for(int j = 0; j < weights[i].length; j++)
+    for(int k = 0; k < weights[i][j].length; k++)
+      System.out.println(i+"|"+j+"|"+k+" "+weights[i][j][k]);
+*/
     try {
       ObjectOutputStream out = null;
       try {

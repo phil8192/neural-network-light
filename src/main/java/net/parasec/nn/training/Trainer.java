@@ -63,7 +63,7 @@ public final class Trainer {
               += networkError(networkOutput, testingInstance.getOutputVector());
         }
         //final double testingMse = Math.sqrt(trainingSum/data.testSize());
-        final double testingMse = MathUtil.fastSqrt(trainingSum/data.testSize());
+        final double testingMse = MathUtil.fastSqrt(testingSum/data.testSize());
         if(testingMse < lowestError) {
           bestEpoch = i+1;
           lowestError = testingMse;
