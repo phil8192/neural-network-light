@@ -53,7 +53,6 @@ public final class Trainer {
       //final double trainingMse = Math.sqrt(trainingSum/datasetLen);
       final double trainingMse = MathUtil.fastSqrt(trainingSum/datasetLen);
       trainingError[i] = trainingMse;
-      LOG.info("epoch = " + i + " mse = " + String.format("%.10f", trainingMse));
       if(data.testSize() > 0) {
         double testingSum = 0;
         for(final TrainingInstance testingInstance: data.getTestData()) {
@@ -70,6 +69,12 @@ public final class Trainer {
           bestNetwork = ann.cloneWeights();
         }
         testingError[i] = testingMse;
+        LOG.info("epoch = " + i + " training rmse = " + 
+            String.format("%.10f", trainingMse) + " testing rmse = " +
+            String.format("%.10f", testingMse));
+      } else {
+        LOG.info("epoch = " + i + " rmse = " + 
+            String.format("%.10f", trainingMse));
       }
     } // end epochs.
     if(data.testSize() > 0 && bestNetwork != null) {
