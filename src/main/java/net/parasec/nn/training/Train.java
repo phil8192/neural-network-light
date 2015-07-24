@@ -85,12 +85,14 @@ public final class Train {
           maxRandomWeight, structure, maxEpochs, k);
       //ann = kft.train(data, learningRate, momentum);
       final KFoldResults[] kfr = kft.train(data, learningRate, momentum);
-      for(int i = 0, len = kfr.length; i < len; i++) {
-        final KFoldResults _kfr = kfr[i];
-        Report.dump(_kfr.getTrainingReport(), modelOutput, "errors_" +
-            String.format("%02d", i+1) + ".csv");
+      for(int i = 1, len = kfr.length; i <= len; i++) {
+        final KFoldResults _kfr = kfr[i-1];
+        final TrainingReport tr = _kfr.getTrainingReport(); 
+        LOG.info("K-Fold " + String.format("%02d", i) + " " + tr);
+        Report.dump(tr, modelOutput, "errors_" +
+            String.format("%02d", i) + ".csv");
         IO.dumpWeights(_kfr.getANN().getWeights(), modelOutput + "/weights_" + 
-            String.format("%02d", i+1) + ".bin");
+            String.format("%02d", i) + ".bin");
       }
     }
   }

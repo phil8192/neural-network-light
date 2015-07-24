@@ -123,8 +123,6 @@ public final class KFoldTrainer {
               final TrainingReport report = Trainer.train(ann, tt.getData(), 
                   maxEpochs, learningRate, momentum);
               res[tt.getResultIndex()] = new KFoldResults(ann, report);
-              LOG.info("training. " + Thread.currentThread().toString() + 
-                  " -> " + report.toString() );
               signal.countDown();
             }
           } catch(final InterruptedException ie) {
