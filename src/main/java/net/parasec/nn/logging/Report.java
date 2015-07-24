@@ -12,14 +12,18 @@ public final class Report {
   private static final Logger LOG = Logger.getLogger(Report.class);
   private static final String FILE = "errors.csv";
 
+  public static void dump(final TrainingReport tr, final String dir){
+    dump(tr, dir, FILE);
+  }
 
-  public static void dump(final TrainingReport tr, final String dir) {
+  public static void dump(final TrainingReport tr, final String dir, 
+      final String fileName) {
     double[] trainingError = tr.getTrainingError();
     double[] testingError = tr.getTestingError();
     if(trainingError == null && testingError == null) return;
     if(trainingError == null) trainingError = new double[testingError.length];
     if(testingError == null) testingError = new double[trainingError.length];
-    final String file = dir + "/" + FILE;
+    final String file = dir + "/" + fileName;
     final long l = System.currentTimeMillis();
     LOG.info("dumping errors to: " + file);
     try {

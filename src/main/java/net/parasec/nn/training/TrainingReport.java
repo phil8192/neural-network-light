@@ -1,5 +1,6 @@
 package net.parasec.nn.training;
 
+// some training/testing metrics.
 public final class TrainingReport {
   private final int bestEpoch;
   private final double trainingMSE;

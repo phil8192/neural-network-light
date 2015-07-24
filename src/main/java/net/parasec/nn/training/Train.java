@@ -48,8 +48,6 @@ public final class Train {
     if(holdbackRatio > 0)
       data.split(holdbackRatio);
 
-    //data.print();
-
     // network hidden layer structure args.
     // (number of input and output nodes determined from dataset outputLength).
     // remaining args are the number of hidden nodes in each layer of the
@@ -69,23 +67,32 @@ public final class Train {
              " mo = " + momentum);       
 
     // train the network.
+    // results in dumping network weights and training errors to disk.  
+ 
     // if no k-folding, train as normal
-    ANN ann;
     if(k <= 1) {
-      ann = new ANN(minRandomWeight, maxRandomWeight, structure, prng);
+      final ANN ann = new ANN(minRandomWeight, maxRandomWeight, structure, prng);
       final long l = System.currentTimeMillis();      
       final TrainingReport report = Trainer.train(ann, data, maxEpochs, 
           learningRate, momentum);
       LOG.info("training complete. " + report);
       LOG.info("training took " + (System.currentTimeMillis()-l) + "ms.");
       Report.dump(report, modelOutput);
+      IO.dumpWeights(ann.getWeights(), modelOutput + "/weights.bin");
     } else {
       // use the k-fold-trainer.
       final KFoldTrainer kft = new KFoldTrainer(prng, minRandomWeight, 
           maxRandomWeight, structure, maxEpochs, k);
-      ann = kft.train(data, learningRate, momentum);
+      //ann = kft.train(data, learningRate, momentum);
+      final KFoldResults[] kfr = kft.train(data, learningRate, momentum);
+      for(int i = 0, len = kfr.length; i < len; i++) {
+        final KFoldResults _kfr = kfr[i];
+        Report.dump(_kfr.getTrainingReport(), modelOutput, "errors_" +
+            String.format("%02d", i+1) + ".csv");
+        IO.dumpWeights(_kfr.getANN().getWeights(), modelOutput + "/weights_" + 
+            String.format("%02d", i+1) + ".bin");
+      }
     }
-    IO.dumpWeights(ann.getWeights(), modelOutput + "/weights.bin");  
   }
 }
 

@@ -63,19 +63,25 @@ public final class KFoldTrainer {
   }
 
   /**
-   * --- optimise the number of epochs needed to converge ---
-   * note that each partition reserved for test set must be unique.
-   * 1. split training data into N test partitions. 
-   * 2. for each partition, training data = data - partition N.
-   * 3. train neural net on this data and record epoch for lowest error on 
-   *    partition N of this data set.
-   * 4. train network on all data, with no partitions to average epoch from 
-   *    step (3).
-   * 5. return neural net.
+   * train K neural networks on K different splits of the data.
+   *
+   * each split consists of a training set and a validation set.
+   * in k-folding, each training+validation combination is unique, such that
+   * _all_ of the data will be used for validation.
+   *
+   * the purpose of k-folding is to determine an expectation of generalisation
+   * accuracy for the model. in the context of neural networks; given a fixed
+   * structure (the model), the purpose is to see how well the model can be 
+   * trained.
+   *
+   * this implementation returns a set of statistics for each fold along with
+   * a set of trained networks. the returned networks are those which yield
+   * the best score on the fold validation data: these could potentially be
+   * used in an ensemble.
    */
-  public ANN train(final Data data, final double learningRate, 
-      final double momentum) {
-    //final int numberOfPartitions = (int) Math.round(data.trainingSize()/70);
+  public KFoldResults[] train(final Data data, final double learningRate,
+      final double momentum) {     
+    final KFoldResults[] res = new KFoldResults[k];
     final int numberOfPartitions = k;
     final List<List<TrainingInstance>> partitions 
         = data.partition(numberOfPartitions);
@@ -94,14 +100,17 @@ public final class KFoldTrainer {
     LOG.info("training. data partitions = " + dataPartitions.size());
     for(final Data d : dataPartitions)
       LOG.info("training. " + d.trainingSize() + " | " + d.testSize());
-    final BlockingQueue<TrainingTask> queue // queue for threads to wait on
+
+    // queue for threads to wait on
+    final BlockingQueue<TrainingTask> queue
         = new LinkedBlockingQueue<TrainingTask>();
     final CountDownLatch signal = new CountDownLatch(dataPartitions.size());
+
     // training task results
-    final int[] total = new int[dataPartitions.size()];
-    // 8 threads.
     final Stack<Thread> threads = new Stack<Thread>();
-    for(int k = 0; k < 8; k++) {
+    final int cores = Runtime.getRuntime().availableProcessors();
+    LOG.info("using " + cores + " threads.");
+    for(int k = 0; k < cores; k++) {
       final Thread t = Executors.defaultThreadFactory().newThread(new Runnable() {
         public final void run() {
           try {
@@ -113,7 +122,7 @@ public final class KFoldTrainer {
                   structure, random);
               final TrainingReport report = Trainer.train(ann, tt.getData(), 
                   maxEpochs, learningRate, momentum);
-              total[tt.getResultIndex()] = report.getBestEpoch();
+              res[tt.getResultIndex()] = new KFoldResults(ann, report);
               LOG.info("training. " + Thread.currentThread().toString() + 
                   " -> " + report.toString() );
               signal.countDown();
@@ -135,25 +144,14 @@ public final class KFoldTrainer {
       LOG.info("waiting for k-fold tasks to complete");
       signal.await();
       LOG.info("k-fold tasks complete");
-      // kill'em
+      // kill'em..
+      // kill'em all!@#$%!@%
       while(!threads.isEmpty())
         threads.pop().interrupt();
     } catch(final InterruptedException ie) {
       Thread.currentThread().interrupt();
     }
-    // tasks complete. get average epochs and train final network.
-    int totalSum = 0;
-    for(i = 0; i < total.length; i++)
-      totalSum += total[i];
-    final int averageBest 
-       = (int) Math.round(totalSum/(double) dataPartitions.size());
-    LOG.info("training average best = " + averageBest);
-    final ANN ann 
-        = new ANN(minRandomWeight, maxRandomWeight, structure, random);
-    final TrainingReport report 
-        = Trainer.train(ann, data, averageBest, learningRate, momentum);
-    LOG.info("training complete. " + report);
-    return ann;
+    return res;
   }
 }
 
