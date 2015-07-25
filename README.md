@@ -124,3 +124,9 @@ for((i=1;i<=10;i++)); do
 done
 ```
 
+R
+```R
+x <- read.csv("/tmp/search.csv", header=F)
+print(paste("optimal hidden nodes =", which.min(tapply(x[, 3], x[, 1], mean))))
+```
+
