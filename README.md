@@ -78,3 +78,49 @@ by the number of columns in the training data: in this case, there are 4 input
 features (first 4 columns) and 3 output classes (last 3 columns). The number of 
 output neurons is determined by the output_nodes flag.
 
+k-folding
+---------
+
+When using k-folding (--k > 0) and (--holdback > 0), training errors are stored
+in the form errors_K.csv in the output directory specified with the 
+--model_output parameter. 
+
+In addition, the network with the lowest RMSE over the validation subset in each 
+k-fold is persisted to the model output directory in the form of weights_K.bin. 
+It is then possible, for example, to later use each of the k_models in an 
+ensemble, or to test against an independent test validation set (one that has 
+not been used at all in training).
+
+At the end of training, the trainer outputs some summary statistics which can
+be used when building different network models. For example, the trainer will
+output the epoch before overfitting started on the validation set along with
+the RMSE validation error for each k-fold. 
+
+This information could be used to determine a "good" number of hidden units in 
+the first hidden layer by checking the average generalisation accuracy for 
+different numbers of hidden units. 
+
+As an example, the following will perform k-fold cross validation (k=8) with 
+20% validation subsets on 10 different neural network structures increasing in 
+complexity from 1 hidden node, up until 10 hidden nodes. The results are stored 
+in /tmp/search.csv in the form of: #hidden_units, best_testing_epoch, 
+best_testing_RMSE. The lowest average best_testing_RMSE could then be used as an 
+indication of a good trainable network topology.
+
+```bash
+for((i=1;i<=10;i++)); do 
+  ./train.sh --file=/tmp/train_data.csv \
+             --output_nodes=1 \
+             --holdback=0.2 \
+             --k=8 \ 
+             --min_weight=-0.1 \ 
+             --max_weight=0.1 \
+             --learning_rate=0.25 \
+             --momentum=0.4 \
+             --epochs=5000 \
+             --model_output=/tmp \
+             --hidden_nodes=$i \
+  |grep K-Fold |awk -v ii=$i '{print ii "," $9 "," $17}' ;done >/tmp/search.csv
+done
+```
+
